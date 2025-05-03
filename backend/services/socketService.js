@@ -44,18 +44,36 @@ export const initSocketIO = (server) => {
           'http://192.168.68.131:3000',
           'http://192.168.68.131:5173',
           'http://192.168.68.131:5174',
-          'http://192.168.68.131:5175',
-          // Allow any IP in the 192.168.68.x subnet
-          'http://192.168.68.*:3000',
-          'http://192.168.68.*:5173',
-          'http://192.168.68.*:5174',
-          'http://192.168.68.*:5175'
+          'http://192.168.68.131:5175'
           // Add your production domain when ready
           // 'https://yourdomain.com'
         ];
 
         // Allow requests with no origin (like mobile apps, curl, postman)
-        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        if (!origin) {
+          callback(null, true);
+          return;
+        }
+
+        // Check if the origin is in the allowed list
+        if (allowedOrigins.includes(origin)) {
+          callback(null, true);
+          return;
+        }
+
+        // Check for subnet patterns using manual regex checks
+        // Define subnet patterns we want to allow
+        const allowedSubnets = [
+          // 192.168.68.x subnet with various ports
+          /^http:\/\/192\.168\.68\.\d+:3000$/,
+          /^http:\/\/192\.168\.68\.\d+:5173$/,
+          /^http:\/\/192\.168\.68\.\d+:5174$/,
+          /^http:\/\/192\.168\.68\.\d+:5175$/
+        ];
+
+        const isAllowed = allowedSubnets.some(regex => regex.test(origin));
+
+        if (isAllowed) {
           callback(null, true);
         } else {
           console.log('Socket.IO CORS blocked origin:', origin);
