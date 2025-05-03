@@ -198,9 +198,29 @@ const distPath = join(dirname(__dirname), 'dist');
 console.log('Checking for frontend build at:', distPath);
 
 import fs from 'fs';
-if (fs.existsSync(distPath)) {
-  console.log('Frontend build found, serving static files from:', distPath);
-  app.use(express.static(distPath));
+// Check multiple possible locations for the dist directory
+const possibleDistPaths = [
+  distPath,
+  join(process.cwd(), 'dist'),
+  '/opt/render/project/src/dist'
+];
+
+let foundDistPath = null;
+
+for (const path of possibleDistPaths) {
+  console.log(`Checking for frontend build at: ${path}`);
+  if (fs.existsSync(path)) {
+    console.log(`Frontend build found at: ${path}`);
+    foundDistPath = path;
+    break;
+  } else {
+    console.log(`No frontend build found at: ${path}`);
+  }
+}
+
+if (foundDistPath) {
+  console.log(`Serving static files from: ${foundDistPath}`);
+  app.use(express.static(foundDistPath));
 
   // For any routes that don't match an API route or static file, serve the index.html
   app.get('*', (req, res) => {
@@ -209,10 +229,18 @@ if (fs.existsSync(distPath)) {
       return res.status(404).json({ error: 'API endpoint not found' });
     }
 
-    res.sendFile(join(distPath, 'index.html'));
+    const indexPath = join(foundDistPath, 'index.html');
+    console.log(`Serving index.html from: ${indexPath}`);
+
+    if (fs.existsSync(indexPath)) {
+      res.sendFile(indexPath);
+    } else {
+      console.log(`ERROR: index.html not found at: ${indexPath}`);
+      res.status(404).send('Frontend index.html not found');
+    }
   });
 } else {
-  console.log('No frontend build found at:', distPath);
+  console.log('No frontend build found in any of the checked locations');
   // Basic route for testing when no frontend build exists
   app.get('/', (_, res) => {
     res.send('Portfolio API is running... (No frontend build found)');

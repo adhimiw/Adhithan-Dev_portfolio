@@ -31,4 +31,18 @@ echo "Building with Vite (skipping TypeScript type checking)..."
 # Use a direct approach with explicit entry point
 npx vite build --config vite.config.prod.ts
 
+# Check if the build was successful
+if [ -d "dist" ]; then
+  echo "Frontend build successful! Dist directory created."
+  echo "Contents of dist directory:"
+  ls -la dist
+
+  # Make sure the backend can find the frontend build
+  echo "Copying dist directory to the location expected by the backend..."
+  cp -r dist /opt/render/project/src/
+  echo "Dist directory copied successfully!"
+else
+  echo "ERROR: Frontend build failed! No dist directory was created."
+fi
+
 echo "Build completed successfully!"
