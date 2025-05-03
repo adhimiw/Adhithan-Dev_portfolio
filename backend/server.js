@@ -26,12 +26,9 @@ import fs from 'fs'; // Ensure fs is imported
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Load environment variables from .env.local file first (if it exists), then from .env
-const envLocalPath = join(dirname(__dirname), '.env.local');
+// Load environment variables from .env file
 const envPath = join(dirname(__dirname), '.env');
 
-// Try to load .env.local first, then fall back to .env
-dotenv.config({ path: envLocalPath });
 dotenv.config({ path: envPath });
 
 // Log which MongoDB URI we're using (without showing credentials)
