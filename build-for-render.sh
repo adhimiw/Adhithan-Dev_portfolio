@@ -32,6 +32,54 @@ fi
 echo "Applying path-to-regexp fix..."
 node fix-path-to-regexp.js
 
+# Verify the fix was applied
+if [ $? -ne 0 ]; then
+  echo "ERROR: Failed to apply path-to-regexp fix. Attempting to install path-to-regexp explicitly..."
+  npm install --save path-to-regexp@6.2.1
+  echo "Applying path-to-regexp fix again after explicit installation..."
+  node fix-path-to-regexp.js
+
+  if [ $? -ne 0 ]; then
+    echo "ERROR: Failed to apply path-to-regexp fix even after explicit installation."
+    echo "Continuing with build process, but deployment may fail."
+  else
+    echo "path-to-regexp fix applied successfully after explicit installation."
+  fi
+else
+  echo "path-to-regexp fix applied successfully."
+fi
+
+# Check and fix problematic Express routes
+echo "Checking and fixing problematic Express routes..."
+node fix-express-routes.js
+if [ $? -ne 0 ]; then
+  echo "WARNING: Failed to check/fix Express routes. Continuing with build process."
+else
+  echo "Express routes check completed."
+fi
+
+# Test if the path-to-regexp fix is working
+echo "Testing path-to-regexp fix..."
+node test-path-to-regexp.js
+if [ $? -ne 0 ]; then
+  echo "WARNING: path-to-regexp test failed. The fix may not be working correctly."
+  echo "Attempting to reinstall path-to-regexp and apply fix again..."
+  npm uninstall path-to-regexp
+  npm install --save path-to-regexp@6.2.1
+  node fix-path-to-regexp.js
+
+  # Test again
+  echo "Testing path-to-regexp fix again..."
+  node test-path-to-regexp.js
+  if [ $? -ne 0 ]; then
+    echo "WARNING: path-to-regexp test still failing. Continuing with build process, but deployment may fail."
+  else
+    echo "path-to-regexp test passed after reinstallation!"
+  fi
+else
+  echo "path-to-regexp test passed! The fix is working correctly."
+fi
+
 # Create a simplified vite.config.js file for the build
 echo "Creating a simplified vite.config.js file..."
 cat > vite.config.js << 'EOL'
