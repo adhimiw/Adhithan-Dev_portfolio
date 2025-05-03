@@ -130,7 +130,7 @@ if [ -d "dist" ]; then
 
   # Make sure the backend can find the frontend build
   echo "Copying dist directory to the location expected by the backend..."
-  cp -r dist /opt/render/project/src/
+  cp -r dist/* /opt/render/project/src/
   echo "Dist directory copied successfully!"
 else
   echo "ERROR: Frontend build failed! No dist directory was created."
