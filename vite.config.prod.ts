@@ -26,6 +26,7 @@ export default defineConfig({
     typescript: {
       noEmit: true,
       skipLibCheck: true,
-    }
+    },
+    outDir: 'dist'
   }
 });
