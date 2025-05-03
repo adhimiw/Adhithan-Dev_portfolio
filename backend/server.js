@@ -38,7 +38,7 @@ const mongoUriDisplay = process.env.MONGO_URI
 console.log(`Using MongoDB URI: ${mongoUriDisplay}`);
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 10000;
 
 // Connect to MongoDB
 let dbConnected = false;
