@@ -64,7 +64,7 @@ const PlaceholderImage: React.FC<PlaceholderImageProps> = ({
       setLoading(false);
     };
     img.onerror = () => {
-      handleImageError(src);
+      handleImageError();
     };
 
     return () => {
@@ -83,83 +83,14 @@ const PlaceholderImage: React.FC<PlaceholderImageProps> = ({
     setLoading(false);
   };
 
-  const handleImageError = (originalSrc: string) => {
+  const handleImageError = () => {
     console.error(`Failed to load image: ${imageSrc}`);
-
-    // Increment attempt count
-    attemptCount.current += 1;
-
-    // Check if it's a placeholder.com URL and immediately use fallback
-    if (imageSrc.includes('placeholder.com') || imageSrc.includes('via.placeholder.com')) {
-      if (fallbackSrc) {
-        // Use the explicit fallback immediately
-        setImageSrc(fallbackSrc);
-        return;
-      } else {
-        // Show placeholder SVG
-        setError(true);
-        setLoading(false);
-        return;
-      }
-    }
-
-    // If we've tried too many times, show placeholder
-    if (attemptCount.current >= maxAttempts) {
-      if (fallbackSrc) {
-        // Try the explicit fallback if provided
-        setImageSrc(fallbackSrc);
-      } else {
-        // Show placeholder
-        setError(true);
-        setLoading(false);
-      }
-      return;
-    }
-
-    // Try different URL formats
-    const alternativePaths = [];
-
-    // If the image is from the API and failed, try to load from public folder
-    if (imageSrc.startsWith('/api/')) {
-      alternativePaths.push(imageSrc.replace('/api/', '/'));
-    }
-
-    // If it's a relative URL without a leading slash, try with a leading slash
-    if (!imageSrc.startsWith('/') && !imageSrc.startsWith('http')) {
-      alternativePaths.push(`/${imageSrc}`);
-    }
-
-    // If it has a leading slash but not /api/, try with /api/
-    if (imageSrc.startsWith('/') && !imageSrc.startsWith('/api/')) {
-      alternativePaths.push(`/api${imageSrc}`);
-    }
-
-    // Try removing /about from path if it exists
-    if (imageSrc.includes('/about/')) {
-      alternativePaths.push(imageSrc.replace('/about/', '/'));
-    }
-
-    // For avatar specifically, try the direct avatar endpoint
-    if (imageSrc.includes('avatar') || originalSrc.includes('avatar')) {
-      alternativePaths.push('/api/about/avatar');
-    }
-
-    // Try the fallback as a last resort
     if (fallbackSrc) {
-      alternativePaths.push(fallbackSrc);
+      setImageSrc(fallbackSrc);
+    } else {
+      setError(true);
+      setLoading(false);
     }
-
-    // Try each alternative path
-    for (const path of alternativePaths) {
-      // Don't check if we've already tried this path - always try alternatives
-      // when navigating back to the page
-      setImageSrc(path);
-      return;
-    }
-
-    // If all attempts fail, show placeholder
-    setError(true);
-    setLoading(false);
   };
 
   return (
@@ -177,7 +108,7 @@ const PlaceholderImage: React.FC<PlaceholderImageProps> = ({
         height={height}
         className={`${className} ${loading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
         onLoad={handleImageLoad}
-        onError={() => handleImageError(imageSrc)}
+        onError={() => handleImageError()}
       />
     </div>
   );

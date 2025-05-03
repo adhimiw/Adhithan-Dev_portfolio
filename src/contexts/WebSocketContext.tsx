@@ -27,7 +27,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const { toast } = useToast();
-  const { isAuthenticated } = useAuth();
+  const { isLoggedIn } = useAuth();
 
   // Track connection attempts
   const [connectionAttempts, setConnectionAttempts] = useState(0);
@@ -35,7 +35,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Initialize socket connection with optimized performance
   useEffect(() => {
-    const API_URL = import.meta.env.VITE_API_URL || '';
+    const API_URL = import.meta.env.FRONTEND_URL ? import.meta.env.FRONTEND_URL.replace('https', 'wss') + ':10000' : '';
 
     if (!API_URL) {
       console.warn('No API URL found, WebSocket connection not established');
@@ -49,7 +49,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
 
     // Create socket instance with optimized settings
-    const socketInstance = io(API_URL, {
+    const socketInstance = io(API_URL.replace('http', 'ws'), {
       reconnectionAttempts: 1, // Reduced from 2
       reconnectionDelay: 3000, // Increased from 2000
       timeout: 8000, // Increased from 5000
@@ -89,7 +89,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     });
 
     // Admin notifications - only add if authenticated
-    if (isAuthenticated) {
+    if (isLoggedIn) {
       socketInstance.on('admin-notification', (data) => {
         toast({
           title: `${data.type.charAt(0).toUpperCase() + data.type.slice(1)} ${data.action}`,
@@ -105,7 +105,7 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     return () => {
       socketInstance.disconnect();
     };
-  }, [toast, isAuthenticated, connectionAttempts, showConnectionError]);
+  }, [toast, isLoggedIn, connectionAttempts, showConnectionError]);
 
   // Join a room or multiple rooms
   const joinRoom = (room: string | string[]) => {
