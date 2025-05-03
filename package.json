@@ -3,11 +3,15 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "npx vite --host 0.0.0.0",
-    "build": "bash ./build-for-render.sh",
+    "build": "bash ./build-for-local.sh",
     "build:skip-ts": "npx vite build --config vite.config.prod.ts",
     "build:render": "bash ./build-for-render.sh",
+    "build:local": "bash ./build-for-local.sh",
     "export-data": "node --no-warnings backend/scripts/exportData.js",
     "import-data": "node --no-warnings backend/scripts/sampleData.js",
     "build:with-data": "npm run export-data && tsc -b && npx vite build",
