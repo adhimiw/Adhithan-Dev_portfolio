@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, Download, Loader2 } from 'lucide-react';
+import { FileTextIcon, DownloadIcon, Loader2Icon } from './icons';
 
 interface ResumeViewerProps {
   resumeUrl: string;
@@ -89,9 +89,9 @@ const ResumeViewer: React.FC<ResumeViewerProps> = ({
           disabled={isDownloading}
         >
           {isDownloading ? (
-            <Loader2 size={iconSize} className="animate-spin" />
+            <Loader2Icon size={iconSize} className="animate-spin" />
           ) : (
-            <FileText size={iconSize} />
+            <FileTextIcon size={iconSize} />
           )}
         </button>
       </div>
@@ -107,9 +107,9 @@ const ResumeViewer: React.FC<ResumeViewerProps> = ({
         disabled={isDownloading}
       >
         {isDownloading ? (
-          <Loader2 size={16} className="mr-1 animate-spin" />
+          <Loader2Icon size={16} className="mr-1 animate-spin" />
         ) : (
-          <Download size={16} className="mr-1" />
+          <DownloadIcon size={16} className="mr-1" />
         )}
         {showText && <span>{isDownloading ? 'Downloading...' : 'Download Resume'}</span>}
       </button>

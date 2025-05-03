@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Loader2 } from 'lucide-react';
 import RetroTVLoader from './RetroTVLoader';
+import { Loader2Icon } from './icons';
 
 interface LoadingSpinnerProps {
   size?: number;
@@ -26,7 +26,7 @@ const LoadingSpinner = ({
   if (!isMounted) {
     return (
       <div className={`flex min-h-[100px] w-full items-center justify-center ${className}`}>
-        <Loader2 className="animate-spin text-primary" size={size} />
+        <Loader2Icon className="animate-spin text-primary" size={size} />
       </div>
     );
   }
@@ -36,7 +36,7 @@ const LoadingSpinner = ({
       {useRetroTV ? (
         <RetroTVLoader text={text} size={tvSize} />
       ) : (
-        <Loader2 className="animate-spin text-primary" size={size} />
+        <Loader2Icon className="animate-spin text-primary" size={size} />
       )}
     </div>
   );
