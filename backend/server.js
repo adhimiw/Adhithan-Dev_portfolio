@@ -19,6 +19,7 @@ import visitorsRouter from './routes/visitors.js';
 import notificationRouter from './routes/notificationRoutes.js';
 import deviceRouter from './routes/deviceRoutes.js';
 import { initSocketIO } from './services/socketService.js';
+import { wildcardMiddleware } from './middleware/routeHandler.js';
 
 // Get the directory path of the current module
 const __filename = fileURLToPath(import.meta.url);
@@ -174,6 +175,9 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
 
+// Add the wildcard middleware to handle problematic routes
+app.use(wildcardMiddleware);
+
 // Routes
 app.use('/api/health', healthRouter);
 app.use('/api/about', aboutRouter);
@@ -225,7 +229,7 @@ if (foundDistPath) {
   app.use(express.static(foundDistPath));
 
   // For any routes that don't match an API route or static file, serve the index.html
-  app.get('*', (req, res) => {
+  app.get(/.*/, (req, res) => {
     // Skip for API routes
     if (req.path.startsWith('/api/')) {
       return res.status(404).json({ error: 'API endpoint not found' });
