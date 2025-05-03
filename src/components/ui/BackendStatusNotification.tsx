@@ -1,13 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, X, Wifi, WifiOff } from 'lucide-react';
+
+// Simple SVG icons to replace lucide-react
+const WifiOffIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="1" y1="1" x2="23" y2="23"></line>
+    <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+    <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+    <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
+    <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+    <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+    <line x1="12" y1="20" x2="12.01" y2="20"></line>
+  </svg>
+);
+
+const XIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18"></line>
+    <line x1="6" y1="6" x2="18" y2="18"></line>
+  </svg>
+);
 
 interface BackendStatusNotificationProps {
   isBackendAvailable: boolean;
 }
 
-const BackendStatusNotification: React.FC<BackendStatusNotificationProps> = ({ 
-  isBackendAvailable 
+const BackendStatusNotification: React.FC<BackendStatusNotificationProps> = ({
+  isBackendAvailable
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
@@ -19,7 +38,7 @@ const BackendStatusNotification: React.FC<BackendStatusNotificationProps> = ({
       const timer = setTimeout(() => {
         setIsVisible(true);
       }, 1000);
-      
+
       return () => clearTimeout(timer);
     } else {
       setIsVisible(false);
@@ -43,8 +62,8 @@ const BackendStatusNotification: React.FC<BackendStatusNotificationProps> = ({
         >
           <div className="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg shadow-lg p-4 mx-4">
             <div className="flex items-start">
-              <div className="flex-shrink-0">
-                <WifiOff className="h-5 w-5 text-amber-500 dark:text-amber-400" />
+              <div className="flex-shrink-0 text-amber-500 dark:text-amber-400">
+                <WifiOffIcon />
               </div>
               <div className="ml-3 flex-1">
                 <h3 className="text-sm font-medium text-amber-800 dark:text-amber-300">
@@ -61,7 +80,7 @@ const BackendStatusNotification: React.FC<BackendStatusNotificationProps> = ({
                 className="flex-shrink-0 ml-4 bg-amber-50 dark:bg-transparent rounded-md inline-flex text-amber-500 hover:text-amber-700 dark:hover:text-amber-300 focus:outline-none"
               >
                 <span className="sr-only">Dismiss</span>
-                <X className="h-5 w-5" />
+                <XIcon />
               </button>
             </div>
           </div>
