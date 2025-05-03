@@ -1,0 +1,44 @@
+services:
+  # Backend API Service
+  - type: web
+    name: adhithan-portfolio-api
+    env: node
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: node backend/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGO_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: FRONTEND_URL
+        fromService:
+          name: adhithan-portfolio-frontend
+          type: web
+          property: url
+
+  # Frontend Service
+  - type: web
+    name: adhithan-portfolio-frontend
+    env: node
+    buildCommand: npm install --legacy-peer-deps && SKIP_TYPESCRIPT=true npm run build:skip-ts
+    startCommand: npx serve -s dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: adhithan-portfolio-api
+          type: web
+          property: url
