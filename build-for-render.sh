@@ -12,9 +12,10 @@ ls -la
 echo "Installing dependencies..."
 npm install --legacy-peer-deps
 
-# Install additional type definitions
-echo "Installing additional type definitions..."
-npm install --save-dev @types/three class-variance-authority tailwind-merge lucide-react @types/react@18.3.20 @types/react-dom@18.3.6
+# Install additional dependencies and type definitions
+echo "Installing additional dependencies and type definitions..."
+npm install --save lucide-react class-variance-authority tailwind-merge
+npm install --save-dev @types/three @types/react@18.3.20 @types/react-dom@18.3.6
 
 # Skip TypeScript type checking and build directly with Vite
 echo "Building with Vite (skipping TypeScript type checking)..."
