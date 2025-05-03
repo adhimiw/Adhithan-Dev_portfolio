@@ -5,6 +5,7 @@ import { defineConfig } from "vite";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  root: '.', // Specify the root directory where index.html is located
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
