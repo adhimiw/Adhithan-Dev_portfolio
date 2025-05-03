@@ -1,0 +1,595 @@
+{
+  "name": "Portfolio Job Integration & Content Generation",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "minutesInterval": 1440,
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ],
+      "id": "1"
+    },
+    {
+      "parameters": {
+        "url": "https://api.linkedin.com/v2/jobSearch",
+        "authentication": "oAuth2",
+        "options": {
+          "qs": {
+            "keywords": "=full stack developer, javascript, react, node.js, mongodb",
+            "location": "United States",
+            "count": 25
+          }
+        }
+      },
+      "name": "LinkedIn Jobs API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        460,
+        300
+      ],
+      "id": "2",
+      "credentials": {
+        "oAuth2Api": "linkedin-oauth2"
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/jobs",
+        "authentication": "genericCredentialType",
+        "options": {
+          "qs": {
+            "description": "=javascript react node mongodb",
+            "location": "remote",
+            "full_time": true
+          }
+        }
+      },
+      "name": "GitHub Jobs API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        460,
+        460
+      ],
+      "id": "3",
+      "credentials": {
+        "genericCredentialType": "github-api"
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://remoteok.io/api",
+        "options": {}
+      },
+      "name": "RemoteOK API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        460,
+        620
+      ],
+      "id": "4"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combinationMode": "multiplex",
+        "options": {}
+      },
+      "name": "Merge Job Sources",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 1,
+      "position": [
+        700,
+        460
+      ],
+      "id": "5"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Standardize job data format from different sources\nconst standardizedJobs = [];\n\n// Process each job from the different sources\nfor (const item of items) {\n  let job = {};\n  \n  if (item.json.company) {\n    // GitHub Jobs format\n    job = {\n      id: item.json.id,\n      title: item.json.title,\n      company: item.json.company,\n      location: item.json.location,\n      description: item.json.description,\n      url: item.json.url,\n      skills: extractSkills(item.json.description),\n      source: 'GitHub Jobs'\n    };\n  } else if (item.json.position) {\n    // RemoteOK format\n    job = {\n      id: item.json.id,\n      title: item.json.position,\n      company: item.json.company,\n      location: item.json.location || 'Remote',\n      description: item.json.description,\n      url: item.json.url,\n      skills: extractSkills(item.json.description),\n      source: 'RemoteOK'\n    };\n  } else if (item.json.elements) {\n    // LinkedIn format\n    const jobData = item.json.elements[0];\n    job = {\n      id: jobData.entityUrn,\n      title: jobData.title,\n      company: jobData.companyDetails.name,\n      location: jobData.locationName,\n      description: jobData.description.text,\n      url: `https://www.linkedin.com/jobs/view/${jobData.entityUrn.split(':').pop()}`,\n      skills: extractSkills(jobData.description.text),\n      source: 'LinkedIn'\n    };\n  }\n  \n  if (Object.keys(job).length > 0) {\n    standardizedJobs.push({\n      json: job\n    });\n  }\n}\n\n// Helper function to extract skills from job description\nfunction extractSkills(description) {\n  const skillsList = [\n    'JavaScript', 'TypeScript', 'React', 'Vue', 'Angular', \n    'Node.js', 'Express', 'MongoDB', 'SQL', 'PostgreSQL', \n    'AWS', 'Docker', 'Kubernetes', 'CI/CD', 'Git',\n    'HTML', 'CSS', 'Sass', 'Tailwind', 'Bootstrap',\n    'REST API', 'GraphQL', 'WebSockets', 'Redux', 'Context API'\n  ];\n  \n  const foundSkills = [];\n  \n  for (const skill of skillsList) {\n    const regex = new RegExp(`\\\\b${skill.replace('.', '\\\\.')}\\\\b`, 'i');\n    if (regex.test(description)) {\n      foundSkills.push(skill);\n    }\n  }\n  \n  return foundSkills;\n}\n\nreturn standardizedJobs;"
+      },
+      "name": "Standardize Job Data",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        920,
+        460
+      ],
+      "id": "6"
+    },
+    {
+      "parameters": {
+        "url": "={{$env.PORTFOLIO_API_URL}}/api/skills",
+        "options": {}
+      },
+      "name": "Get Portfolio Skills",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        920,
+        300
+      ],
+      "id": "7"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Match jobs with portfolio skills\nconst portfolioSkills = $node[\"Get Portfolio Skills\"].json;\nconst jobs = items;\n\n// Create a map of skill names to skill objects\nconst skillsMap = {};\nfor (const skill of portfolioSkills) {\n  skillsMap[skill.name.toLowerCase()] = skill;\n}\n\n// For each job, calculate a match score based on skills\nconst jobsWithMatchScore = jobs.map(item => {\n  const job = item.json;\n  let matchScore = 0;\n  const matchedSkills = [];\n  \n  // Calculate match score based on skills\n  for (const jobSkill of job.skills) {\n    const skillLower = jobSkill.toLowerCase();\n    if (skillsMap[skillLower]) {\n      matchScore += skillsMap[skillLower].level || 1; // Use skill level as weight\n      matchedSkills.push({\n        name: jobSkill,\n        level: skillsMap[skillLower].level,\n        category: skillsMap[skillLower].category\n      });\n    }\n  }\n  \n  // Add match score and matched skills to job object\n  return {\n    json: {\n      ...job,\n      matchScore,\n      matchedSkills,\n      matchPercentage: job.skills.length > 0 ? \n        Math.round((matchedSkills.length / job.skills.length) * 100) : 0\n    }\n  };\n});\n\n// Sort by match score (highest first)\nreturn jobsWithMatchScore.sort((a, b) => b.json.matchScore - a.json.matchScore);"
+      },
+      "name": "Match Jobs with Skills",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1140,
+        460
+      ],
+      "id": "8"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json[\"matchPercentage\"]}}",
+              "operation": "larger",
+              "value2": 50
+            }
+          ]
+        }
+      },
+      "name": "Filter Relevant Jobs",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        460
+      ],
+      "id": "9"
+    },
+    {
+      "parameters": {
+        "url": "={{$env.PORTFOLIO_API_URL}}/api/jobs",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "jobs",
+              "value": "={{$json}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Save to Portfolio DB",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1580,
+        380
+      ],
+      "id": "10"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Generate tailored resume content based on job requirements\nconst job = items[0].json;\nconst matchedSkills = job.matchedSkills;\n\n// Group skills by category\nconst skillsByCategory = {};\nfor (const skill of matchedSkills) {\n  if (!skillsByCategory[skill.category]) {\n    skillsByCategory[skill.category] = [];\n  }\n  skillsByCategory[skill.category].push(skill);\n}\n\n// Generate resume sections\nconst resumeSections = {\n  summary: generateSummary(job, matchedSkills),\n  skills: generateSkillsSection(skillsByCategory),\n  projects: generateProjectsSection(matchedSkills),\n  experience: generateExperienceSection(matchedSkills)\n};\n\n// Helper functions\nfunction generateSummary(job, skills) {\n  const skillNames = skills.map(s => s.name).slice(0, 5).join(', ');\n  return `Experienced developer with expertise in ${skillNames} seeking the ${job.title} position at ${job.company}. Proven track record of delivering high-quality solutions that align with the technical requirements of this role.`;\n}\n\nfunction generateSkillsSection(skillsByCategory) {\n  const sections = [];\n  for (const category in skillsByCategory) {\n    const skillNames = skillsByCategory[category].map(s => s.name).join(', ');\n    sections.push(`${category}: ${skillNames}`);\n  }\n  return sections;\n}\n\nfunction generateProjectsSection(skills) {\n  // This would typically pull from your actual projects\n  // For this example, we're generating placeholder content\n  return [\n    {\n      title: 'Portfolio Website',\n      description: `Modern portfolio built with React, Node.js, and MongoDB. Implements ${skills.slice(0, 3).map(s => s.name).join(', ')} to create a responsive and interactive user experience.`,\n      relevanceScore: 95\n    },\n    {\n      title: 'E-commerce Platform',\n      description: `Full-stack application using ${skills.slice(0, 4).map(s => s.name).join(', ')}. Includes user authentication, product management, and payment processing.`,\n      relevanceScore: 85\n    }\n  ];\n}\n\nfunction generateExperienceSection(skills) {\n  // This would typically pull from your actual experience\n  // For this example, we're generating placeholder content\n  return [\n    {\n      title: 'Senior Developer',\n      company: 'Tech Solutions Inc.',\n      period: '2020-Present',\n      description: `Led development team using ${skills.slice(0, 3).map(s => s.name).join(', ')} to build enterprise applications.`,\n      relevanceScore: 90\n    },\n    {\n      title: 'Full Stack Developer',\n      company: 'Digital Innovations',\n      period: '2018-2020',\n      description: `Developed web applications using ${skills.slice(1, 4).map(s => s.name).join(', ')}.`,\n      relevanceScore: 80\n    }\n  ];\n}\n\nreturn [\n  {\n    json: {\n      jobId: job.id,\n      jobTitle: job.title,\n      company: job.company,\n      tailoredResume: resumeSections,\n      matchPercentage: job.matchPercentage\n    }\n  }\n];"
+      },
+      "name": "Generate Tailored Resume",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1580,
+        540
+      ],
+      "id": "11"
+    },
+    {
+      "parameters": {
+        "url": "={{$env.PORTFOLIO_API_URL}}/api/resumes",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "resume",
+              "value": "={{$json}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Save Tailored Resume",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1800,
+        540
+      ],
+      "id": "12"
+    },
+    {
+      "parameters": {
+        "url": "={{$env.PORTFOLIO_API_URL}}/api/projects",
+        "options": {}
+      },
+      "name": "Get Portfolio Projects",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1140,
+        620
+      ],
+      "id": "13"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Generate project case studies based on job requirements\nconst job = items[0].json;\nconst projects = $node[\"Get Portfolio Projects\"].json;\n\n// Find projects that match the job skills\nconst relevantProjects = [];\n\nfor (const project of projects) {\n  let relevanceScore = 0;\n  const matchedTechnologies = [];\n  \n  // Check if project technologies match job skills\n  for (const tech of project.technologies) {\n    if (job.skills.includes(tech)) {\n      relevanceScore += 1;\n      matchedTechnologies.push(tech);\n    }\n  }\n  \n  if (matchedTechnologies.length > 0) {\n    relevantProjects.push({\n      ...project,\n      relevanceScore,\n      matchedTechnologies,\n      relevancePercentage: Math.round((matchedTechnologies.length / project.technologies.length) * 100)\n    });\n  }\n}\n\n// Sort by relevance score\nrelevantProjects.sort((a, b) => b.relevanceScore - a.relevanceScore);\n\n// Generate case studies for top 3 most relevant projects\nconst caseStudies = relevantProjects.slice(0, 3).map(project => {\n  return {\n    projectId: project._id,\n    projectTitle: project.title,\n    jobTitle: job.title,\n    company: job.company,\n    relevancePercentage: project.relevancePercentage,\n    caseStudy: {\n      introduction: generateIntroduction(project, job),\n      challenge: project.description,\n      approach: generateApproach(project, job),\n      solution: generateSolution(project, job),\n      results: generateResults(project),\n      relevantSkills: project.matchedTechnologies.join(', ')\n    }\n  };\n});\n\n// Helper functions\nfunction generateIntroduction(project, job) {\n  return `This case study of ${project.title} demonstrates my experience with ${project.matchedTechnologies.join(', ')}, which directly aligns with the ${job.title} position at ${job.company}.`;\n}\n\nfunction generateApproach(project, job) {\n  return `For this project, I implemented a solution using ${project.matchedTechnologies.join(', ')}. The approach focused on creating a scalable and maintainable codebase that could adapt to changing requirements, similar to what would be expected in the ${job.title} role.`;\n}\n\nfunction generateSolution(project, job) {\n  const relevantTech = project.matchedTechnologies.join(', ');\n  return `The final solution leveraged ${relevantTech} to create a robust application. This demonstrates my proficiency in the technologies required for the ${job.title} position.`;\n}\n\nfunction generateResults(project) {\n  return `The project was successfully completed, resulting in improved performance, better user experience, and enhanced functionality. The implementation of ${project.matchedTechnologies.join(', ')} proved to be effective for the project requirements.`;\n}\n\nreturn caseStudies.map(caseStudy => ({ json: caseStudy }));"
+      },
+      "name": "Generate Case Studies",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        1580,
+        700
+      ],
+      "id": "14"
+    },
+    {
+      "parameters": {
+        "url": "={{$env.PORTFOLIO_API_URL}}/api/case-studies",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "caseStudy",
+              "value": "={{$json}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Save Case Study",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1800,
+        700
+      ],
+      "id": "15"
+    },
+    {
+      "parameters": {
+        "url": "={{$env.PORTFOLIO_API_URL}}/api/notifications",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "type",
+              "value": "job-match"
+            },
+            {
+              "name": "title",
+              "value": "New Job Match Found"
+            },
+            {
+              "name": "message",
+              "value": "={{\"Found \" + $node[\"Filter Relevant Jobs\"].json.length + \" new job matches. Top match: \" + $node[\"Filter Relevant Jobs\"].json[0].title + \" at \" + $node[\"Filter Relevant Jobs\"].json[0].company}}"
+            },
+            {
+              "name": "priority",
+              "value": "high"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Send Notification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        1800,
+        380
+      ],
+      "id": "16"
+    },
+    {
+      "parameters": {
+        "url": "={{$env.PORTFOLIO_API_URL}}/api/portfolio/update-emphasis",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "jobId",
+              "value": "={{$node[\"Filter Relevant Jobs\"].json[0].id}}"
+            },
+            {
+              "name": "emphasizedSkills",
+              "value": "={{$node[\"Filter Relevant Jobs\"].json[0].matchedSkills.map(skill => skill.name)}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Update Portfolio Emphasis",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        2020,
+        380
+      ],
+      "id": "17"
+    },
+    {
+      "parameters": {
+        "url": "={{$env.PORTFOLIO_API_URL}}/api/skill-summaries",
+        "method": "POST",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "jobId",
+              "value": "={{$node[\"Filter Relevant Jobs\"].json[0].id}}"
+            },
+            {
+              "name": "jobTitle",
+              "value": "={{$node[\"Filter Relevant Jobs\"].json[0].title}}"
+            },
+            {
+              "name": "company",
+              "value": "={{$node[\"Filter Relevant Jobs\"].json[0].company}}"
+            },
+            {
+              "name": "skills",
+              "value": "={{$node[\"Filter Relevant Jobs\"].json[0].matchedSkills}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Generate Skill Summaries",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [
+        2020,
+        540
+      ],
+      "id": "18"
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn Jobs API",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "GitHub Jobs API",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RemoteOK API",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Portfolio Skills",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn Jobs API": {
+      "main": [
+        [
+          {
+            "node": "Merge Job Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GitHub Jobs API": {
+      "main": [
+        [
+          {
+            "node": "Merge Job Sources",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "RemoteOK API": {
+      "main": [
+        [
+          {
+            "node": "Merge Job Sources",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge Job Sources": {
+      "main": [
+        [
+          {
+            "node": "Standardize Job Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Standardize Job Data": {
+      "main": [
+        [
+          {
+            "node": "Match Jobs with Skills",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Portfolio Skills": {
+      "main": [
+        [
+          {
+            "node": "Match Jobs with Skills",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Match Jobs with Skills": {
+      "main": [
+        [
+          {
+            "node": "Filter Relevant Jobs",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Portfolio Projects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Relevant Jobs": {
+      "main": [
+        [
+          {
+            "node": "Save to Portfolio DB",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Generate Tailored Resume",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Generate Case Studies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save to Portfolio DB": {
+      "main": [
+        [
+          {
+            "node": "Send Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Tailored Resume": {
+      "main": [
+        [
+          {
+            "node": "Save Tailored Resume",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Portfolio Projects": {
+      "main": [
+        [
+          {
+            "node": "Generate Case Studies",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Generate Case Studies": {
+      "main": [
+        [
+          {
+            "node": "Save Case Study",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Notification": {
+      "main": [
+        [
+          {
+            "node": "Update Portfolio Emphasis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Tailored Resume": {
+      "main": [
+        [
+          {
+            "node": "Generate Skill Summaries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1",
+  "meta": {
+    "instanceId": "portfolio-job-integration"
+  },
+  "tags": [
+    {
+      "name": "portfolio",
+      "id": "1"
+    },
+    {
+      "name": "job-integration",
+      "id": "2"
+    },
+    {
+      "name": "content-generation",
+      "id": "3"
+    }
+  ]
+}

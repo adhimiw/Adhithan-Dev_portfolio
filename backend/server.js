@@ -114,15 +114,22 @@ const corsOptions = {
       'http://192.168.73.2:5175',
       'http://192.168.73.2:8080',
       'http://192.168.73.2:3000',
-      // Allow any IP in the 192.168.73.x subnet - using regex patterns instead of wildcards
-      // These will be handled by the regex matcher below
+      // Allow any IP in the 192.168.73.x subnet
+      'http://192.168.73.*:5173',
+      'http://192.168.73.*:5174',
+      'http://192.168.73.*:5175',
+      'http://192.168.73.*:8080',
+      'http://192.168.73.*:3000',
       // Add current hotspot IP
       'http://192.168.68.131:3000',
       'http://192.168.68.131:5173',
       'http://192.168.68.131:5174',
       'http://192.168.68.131:5175',
-      // Allow any IP in the 192.168.68.x subnet - using regex patterns instead of wildcards
-      // These will be handled by the regex matcher below
+      // Allow any IP in the 192.168.68.x subnet
+      'http://192.168.68.*:3000',
+      'http://192.168.68.*:5173',
+      'http://192.168.68.*:5174',
+      'http://192.168.68.*:5175',
       // Allow port 8080 on local IP
       'http://192.168.1.7:8080'
       // Add your production domain when ready
@@ -136,29 +143,20 @@ const corsOptions = {
     }
 
     // Check if the origin is in the allowed list
-    if (allowedOrigins.includes(origin)) {
+    if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
       return;
     }
 
-    // Check for subnet patterns using manual regex checks
-    // Define subnet patterns we want to allow
-    const allowedSubnets = [
-      // 192.168.73.x subnet with various ports
-      /^http:\/\/192\.168\.73\.\d+:5173$/,
-      /^http:\/\/192\.168\.73\.\d+:5174$/,
-      /^http:\/\/192\.168\.73\.\d+:5175$/,
-      /^http:\/\/192\.168\.73\.\d+:8080$/,
-      /^http:\/\/192\.168\.73\.\d+:3000$/,
-
-      // 192.168.68.x subnet with various ports
-      /^http:\/\/192\.168\.68\.\d+:3000$/,
-      /^http:\/\/192\.168\.68\.\d+:5173$/,
-      /^http:\/\/192\.168\.68\.\d+:5174$/,
-      /^http:\/\/192\.168\.68\.\d+:5175$/
-    ];
-
-    const isAllowed = allowedSubnets.some(regex => regex.test(origin));
+    // Check for wildcard patterns (e.g., 192.168.73.*)
+    const isAllowed = allowedOrigins.some(pattern => {
+      if (pattern.includes('*')) {
+        const regexPattern = pattern.replace(/\./g, '\\.').replace(/\*/g, '.*');
+        const regex = new RegExp(`^${regexPattern}$`);
+        return regex.test(origin);
+      }
+      return false;
+    });
 
     if (isAllowed) {
       callback(null, true);
@@ -195,59 +193,10 @@ app.use('/api/visitors', (req, _, next) => {
 app.use('/api/notifications', notificationRouter);
 app.use('/api/devices', deviceRouter);
 
-// Serve static files from the dist directory if it exists
-const distPath = join(dirname(__dirname), 'dist');
-console.log('Checking for frontend build at:', distPath);
-
-import fs from 'fs';
-// Check multiple possible locations for the dist directory
-const possibleDistPaths = [
-  distPath,
-  join(process.cwd(), 'dist'),
-  '/opt/render/project/src/dist'
-];
-
-let foundDistPath = null;
-
-for (const path of possibleDistPaths) {
-  console.log(`Checking for frontend build at: ${path}`);
-  if (fs.existsSync(path)) {
-    console.log(`Frontend build found at: ${path}`);
-    foundDistPath = path;
-    break;
-  } else {
-    console.log(`No frontend build found at: ${path}`);
-  }
-}
-
-if (foundDistPath) {
-  console.log(`Serving static files from: ${foundDistPath}`);
-  app.use(express.static(foundDistPath));
-
-  // For any routes that don't match an API route or static file, serve the index.html
-  app.get('*', (req, res) => {
-    // Skip for API routes
-    if (req.path.startsWith('/api/')) {
-      return res.status(404).json({ error: 'API endpoint not found' });
-    }
-
-    const indexPath = join(foundDistPath, 'index.html');
-    console.log(`Serving index.html from: ${indexPath}`);
-
-    if (fs.existsSync(indexPath)) {
-      res.sendFile(indexPath);
-    } else {
-      console.log(`ERROR: index.html not found at: ${indexPath}`);
-      res.status(404).send('Frontend index.html not found');
-    }
-  });
-} else {
-  console.log('No frontend build found in any of the checked locations');
-  // Basic route for testing when no frontend build exists
-  app.get('/', (_, res) => {
-    res.send('Portfolio API is running... (No frontend build found)');
-  });
-}
+// Basic route for testing
+app.get('/', (_, res) => {
+  res.send('Portfolio API is running...');
+});
 
 
 
@@ -258,6 +207,6 @@ const server = http.createServer(app);
 initSocketIO(server);
 
 // Start the server
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });

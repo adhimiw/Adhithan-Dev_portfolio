@@ -230,4 +230,24 @@ router.put('/messages/:id/read', protect, async (req, res) => {
   }
 });
 
+// @route   DELETE api/contact/messages/:id
+// @desc    Delete a contact message
+// @access  Private
+router.delete('/messages/:id', protect, async (req, res) => {
+  try {
+    const message = await Message.findById(req.params.id);
+
+    if (!message) {
+      return res.status(404).json({ error: 'Message not found' });
+    }
+
+    await message.remove();
+
+    res.json({ success: true, message: 'Message deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting message:', err.message);
+    res.status(500).send('Server Error');
+  }
+});
+
 export default router;
