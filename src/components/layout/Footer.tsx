@@ -1,8 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Github, Linkedin, Twitter, Instagram, ExternalLink } from 'lucide-react';
+import { Github, Linkedin, Twitter, Instagram, ExternalLink, Lock } from 'lucide-react';
 import { useContactQuery, useAboutQuery } from '../../hooks/useQueryData';
 import ResumeViewer from '../ui/ResumeViewer';
+import { Link } from 'react-router-dom';
 
 const Footer: React.FC = () => {
   const { data: contact } = useContactQuery();
@@ -69,6 +70,11 @@ const Footer: React.FC = () => {
                 </a>
               </p>
             )}
+            <p className="mt-1 text-xs opacity-60 hover:opacity-100 transition-opacity">
+              <Link to="/admin/login" className="flex items-center gap-1 hover:text-primary transition-colors">
+                <Lock size={12} /> Admin
+              </Link>
+            </p>
           </motion.div>
 
           <div className="flex space-x-6">
