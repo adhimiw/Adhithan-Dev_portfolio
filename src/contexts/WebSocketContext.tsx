@@ -58,8 +58,8 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       autoConnect: true,
       withCredentials: true,
       // Disable unnecessary features for better performance
-      transports: ['websocket'], // Skip polling
-      upgrade: false, // Don't try to upgrade
+      transports: ['polling', 'websocket'], // Skip polling
+      upgrade: true, // Don't try to upgrade
     });
 
     // Set up event listeners
