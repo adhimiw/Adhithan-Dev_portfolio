@@ -1,0 +1,36 @@
+/* Ensure no blur effects are applied */
+* {
+  backdrop-filter: none !important;
+  filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  -webkit-filter: none !important;
+}
+
+/* Ensure modal content is clear */
+.modal-content {
+  backdrop-filter: none !important;
+  filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  -webkit-filter: none !important;
+  z-index: 9999 !important;
+}
+
+/* Ensure form inputs are clear */
+input, select, textarea, button {
+  backdrop-filter: none !important;
+  filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  -webkit-filter: none !important;
+}
+
+/* Fix for modal backdrop */
+.fixed.inset-0 {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Ensure modal is visible */
+.fixed.inset-0.z-50 {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
