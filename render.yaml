@@ -3,7 +3,7 @@ services:
   - type: web
     name: adhithan-portfolio-api
     env: node
-    buildCommand: npm install --legacy-peer-deps
+    buildCommand: chmod +x render-backend-build.sh && ./render-backend-build.sh
     startCommand: node backend/server.js
     envVars:
       - key: NODE_ENV
@@ -34,7 +34,7 @@ services:
   - type: web
     name: adhithan-portfolio-frontend
     env: node
-    buildCommand: ./render-build-fix.sh
+    buildCommand: chmod +x build-for-render.sh && ./build-for-render.sh
     startCommand: npx serve -s dist
     envVars:
       - key: VITE_API_URL
