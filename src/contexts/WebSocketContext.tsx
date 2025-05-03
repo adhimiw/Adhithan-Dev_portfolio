@@ -35,10 +35,11 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Initialize socket connection with optimized performance
   useEffect(() => {
-    const API_URL = import.meta.env.FRONTEND_URL ? import.meta.env.FRONTEND_URL.replace('https', 'wss') + ':10000' : '';
+    // Use the dedicated backend WebSocket URL environment variable
+    const API_URL = import.meta.env.VITE_BACKEND_WS_URL;
 
     if (!API_URL) {
-      console.warn('No API URL found, WebSocket connection not established');
+      console.warn('VITE_BACKEND_WS_URL not set, WebSocket connection not established');
       return;
     }
 
@@ -49,7 +50,8 @@ export const WebSocketProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
 
     // Create socket instance with optimized settings
-    const socketInstance = io(API_URL.replace('http', 'ws'), {
+    // No need to replace http with ws here, the env var should have the correct protocol (ws or wss)
+    const socketInstance = io(API_URL, {
       reconnectionAttempts: 1, // Reduced from 2
       reconnectionDelay: 3000, // Increased from 2000
       timeout: 8000, // Increased from 5000
