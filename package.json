@@ -16,7 +16,8 @@
     "preview": "npx vite preview",
     "server": "node --no-warnings backend/server.js",
     "server:dev": "nodemon --no-warnings backend/server.js",
-    "all": "concurrently \"npm run server:dev\" \"npm run dev\""
+    "all": "concurrently \"npm run server:dev\" \"npm run dev\"",
+    "postinstall": "node fix-path-to-regexp.js"
   },
   "dependencies": {
     "@emotion/react": "^11.11.3",

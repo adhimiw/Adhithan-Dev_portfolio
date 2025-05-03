@@ -28,6 +28,10 @@ if [ ! -d "node_modules/tailwind-merge" ]; then
   npm install --save tailwind-merge@2.6.0
 fi
 
+# Apply the path-to-regexp fix
+echo "Applying path-to-regexp fix..."
+node fix-path-to-regexp.js
+
 # Create a simplified vite.config.js file for the build
 echo "Creating a simplified vite.config.js file..."
 cat > vite.config.js << 'EOL'
