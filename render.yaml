@@ -34,7 +34,7 @@ services:
   - type: web
     name: adhithan-portfolio-frontend
     env: node
-    buildCommand: npm install --legacy-peer-deps && SKIP_TYPESCRIPT=true npm run build:skip-ts
+    buildCommand: npm install --legacy-peer-deps && npm run build:render
     startCommand: npx serve -s dist
     envVars:
       - key: VITE_API_URL
