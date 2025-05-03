@@ -3,6 +3,7 @@ services:
   - type: web
     name: adhithan-portfolio-api
     env: node
+    nodeVersion: 18
     buildCommand: chmod +x build-for-render.sh && ./build-for-render.sh && chmod +x render-backend-build.sh && ./render-backend-build.sh
     startCommand: node backend/server.js
     envVars:

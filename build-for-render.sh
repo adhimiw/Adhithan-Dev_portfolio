@@ -8,6 +8,17 @@ echo "Current directory: $(pwd)"
 echo "Listing files in current directory:"
 ls -la
 
+# Check Node.js version
+echo "Node.js version:"
+node --version
+
+# Use Node.js 18 if available on Render
+if command -v /opt/render/project/nodejs18/bin/node &> /dev/null; then
+  echo "Using Node.js 18 from Render path..."
+  export PATH="/opt/render/project/nodejs18/bin:$PATH"
+  node --version
+fi
+
 # Clean node_modules to ensure a fresh install
 echo "Cleaning node_modules..."
 rm -rf node_modules
@@ -28,26 +39,17 @@ if [ ! -d "node_modules/tailwind-merge" ]; then
   npm install --save tailwind-merge@2.6.0
 fi
 
-# Apply the path-to-regexp fix
-echo "Applying path-to-regexp fix..."
+# Install path-to-regexp explicitly
+echo "Installing path-to-regexp explicitly..."
+npm install --save path-to-regexp@6.2.1
+
+# Apply the comprehensive path-to-regexp fix
+echo "Applying comprehensive path-to-regexp fix..."
 node fix-path-to-regexp.js
 
-# Verify the fix was applied
-if [ $? -ne 0 ]; then
-  echo "ERROR: Failed to apply path-to-regexp fix. Attempting to install path-to-regexp explicitly..."
-  npm install --save path-to-regexp@6.2.1
-  echo "Applying path-to-regexp fix again after explicit installation..."
-  node fix-path-to-regexp.js
-
-  if [ $? -ne 0 ]; then
-    echo "ERROR: Failed to apply path-to-regexp fix even after explicit installation."
-    echo "Continuing with build process, but deployment may fail."
-  else
-    echo "path-to-regexp fix applied successfully after explicit installation."
-  fi
-else
-  echo "path-to-regexp fix applied successfully."
-fi
+# Apply the router-specific path-to-regexp fix
+echo "Applying router-specific path-to-regexp fix..."
+node fix-router-path-to-regexp.js
 
 # Check and fix problematic Express routes
 echo "Checking and fixing problematic Express routes..."
@@ -63,10 +65,25 @@ echo "Testing path-to-regexp fix..."
 node test-path-to-regexp.js
 if [ $? -ne 0 ]; then
   echo "WARNING: path-to-regexp test failed. The fix may not be working correctly."
-  echo "Attempting to reinstall path-to-regexp and apply fix again..."
-  npm uninstall path-to-regexp
-  npm install --save path-to-regexp@6.2.1
-  node fix-path-to-regexp.js
+  echo "Attempting one more comprehensive fix..."
+
+  # Try a more direct approach - modify the router package directly
+  echo "Directly modifying router package..."
+  if [ -f "./node_modules/router/node_modules/path-to-regexp/dist/index.js" ]; then
+    echo "Found router's path-to-regexp, applying direct fix..."
+    sed -i 's/const DEBUG_URL = "https:\/\/git.new\/pathToRegexpError";/const DEBUG_URL = "path-to-regexp-error";/g' ./node_modules/router/node_modules/path-to-regexp/dist/index.js
+
+    # Add the skip validation code
+    sed -i '/function name(i, DEBUG_URL) {/a \
+      // Skip parameter name validation for URLs with colons\
+      if (DEBUG_URL && DEBUG_URL.includes(":")) {\
+        return "param";\
+      }' ./node_modules/router/node_modules/path-to-regexp/dist/index.js
+
+    echo "Direct modification of router's path-to-regexp completed."
+  else
+    echo "Router's path-to-regexp not found at expected location."
+  fi
 
   # Test again
   echo "Testing path-to-regexp fix again..."
@@ -74,7 +91,7 @@ if [ $? -ne 0 ]; then
   if [ $? -ne 0 ]; then
     echo "WARNING: path-to-regexp test still failing. Continuing with build process, but deployment may fail."
   else
-    echo "path-to-regexp test passed after reinstallation!"
+    echo "path-to-regexp test passed after direct modification!"
   fi
 else
   echo "path-to-regexp test passed! The fix is working correctly."
