@@ -133,9 +133,9 @@ const corsOptions = {
       'http://192.168.68.*:5174',
       'http://192.168.68.*:5175',
       // Allow port 8080 on local IP
-      'http://192.168.1.7:8080'
+      'http://192.168.1.7:8080',
       // Add your production domain when ready
-      // 'https://yourdomain.com'
+      'https://adhithan-dev-portfolio.onrender.com' // Added production frontend URL
     ];
 
     // Allow requests with no origin (like mobile apps, curl, postman)
