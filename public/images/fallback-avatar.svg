@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="400" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="400" fill="#f0f0f0"/>
+  
+  <!-- Head -->
+  <circle cx="200" cy="150" r="80" fill="#d1d5db"/>
+  
+  <!-- Body -->
+  <path d="M120 350 Q200 250 280 350" fill="#d1d5db"/>
+  
+  <!-- Text -->
+  <text x="200" y="380" font-family="Arial, sans-serif" font-size="24" text-anchor="middle" fill="#6b7280">Profile Image</text>
+</svg>

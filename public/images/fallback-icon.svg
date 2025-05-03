@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="128" height="128" fill="#0D8ABC"/>
+  
+  <!-- Icon placeholder -->
+  <circle cx="64" cy="64" r="40" fill="#ffffff" fill-opacity="0.2"/>
+  
+  <!-- Text will be added dynamically -->
+</svg>
