@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "npx vite --host 0.0.0.0",
-    "build": "bash ./build-for-local.sh",
+    "build": "bash ./build-for-render.sh",
     "build:skip-ts": "npx vite build --config vite.config.prod.ts",
     "build:render": "bash ./build-for-render.sh",
     "build:local": "bash ./build-for-local.sh",
