@@ -114,22 +114,15 @@ const corsOptions = {
       'http://192.168.73.2:5175',
       'http://192.168.73.2:8080',
       'http://192.168.73.2:3000',
-      // Allow any IP in the 192.168.73.x subnet
-      'http://192.168.73.*:5173',
-      'http://192.168.73.*:5174',
-      'http://192.168.73.*:5175',
-      'http://192.168.73.*:8080',
-      'http://192.168.73.*:3000',
+      // Allow any IP in the 192.168.73.x subnet - using regex patterns instead of wildcards
+      // These will be handled by the regex matcher below
       // Add current hotspot IP
       'http://192.168.68.131:3000',
       'http://192.168.68.131:5173',
       'http://192.168.68.131:5174',
       'http://192.168.68.131:5175',
-      // Allow any IP in the 192.168.68.x subnet
-      'http://192.168.68.*:3000',
-      'http://192.168.68.*:5173',
-      'http://192.168.68.*:5174',
-      'http://192.168.68.*:5175',
+      // Allow any IP in the 192.168.68.x subnet - using regex patterns instead of wildcards
+      // These will be handled by the regex matcher below
       // Allow port 8080 on local IP
       'http://192.168.1.7:8080'
       // Add your production domain when ready
@@ -143,20 +136,29 @@ const corsOptions = {
     }
 
     // Check if the origin is in the allowed list
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
       return;
     }
 
-    // Check for wildcard patterns (e.g., 192.168.73.*)
-    const isAllowed = allowedOrigins.some(pattern => {
-      if (pattern.includes('*')) {
-        const regexPattern = pattern.replace(/\./g, '\\.').replace(/\*/g, '.*');
-        const regex = new RegExp(`^${regexPattern}$`);
-        return regex.test(origin);
-      }
-      return false;
-    });
+    // Check for subnet patterns using manual regex checks
+    // Define subnet patterns we want to allow
+    const allowedSubnets = [
+      // 192.168.73.x subnet with various ports
+      /^http:\/\/192\.168\.73\.\d+:5173$/,
+      /^http:\/\/192\.168\.73\.\d+:5174$/,
+      /^http:\/\/192\.168\.73\.\d+:5175$/,
+      /^http:\/\/192\.168\.73\.\d+:8080$/,
+      /^http:\/\/192\.168\.73\.\d+:3000$/,
+
+      // 192.168.68.x subnet with various ports
+      /^http:\/\/192\.168\.68\.\d+:3000$/,
+      /^http:\/\/192\.168\.68\.\d+:5173$/,
+      /^http:\/\/192\.168\.68\.\d+:5174$/,
+      /^http:\/\/192\.168\.68\.\d+:5175$/
+    ];
+
+    const isAllowed = allowedSubnets.some(regex => regex.test(origin));
 
     if (isAllowed) {
       callback(null, true);
