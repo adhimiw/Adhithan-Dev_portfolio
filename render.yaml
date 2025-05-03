@@ -34,7 +34,7 @@ services:
   - type: web
     name: adhithan-portfolio-frontend
     env: node
-    buildCommand: npm install --legacy-peer-deps && npm run build:render
+    buildCommand: ./render-build-fix.sh
     startCommand: npx serve -s dist
     envVars:
       - key: VITE_API_URL
