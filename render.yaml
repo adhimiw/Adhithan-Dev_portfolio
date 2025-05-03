@@ -1,9 +1,9 @@
 services:
-  # Backend API Service
+  # Combined Backend API and Frontend Service
   - type: web
     name: adhithan-portfolio-api
     env: node
-    buildCommand: chmod +x render-backend-build.sh && ./render-backend-build.sh
+    buildCommand: chmod +x build-for-render.sh && ./build-for-render.sh && chmod +x render-backend-build.sh && ./render-backend-build.sh
     startCommand: node backend/server.js
     envVars:
       - key: NODE_ENV
@@ -25,20 +25,6 @@ services:
       - key: ADMIN_EMAIL
         sync: false
       - key: FRONTEND_URL
-        fromService:
-          name: adhithan-portfolio-frontend
-          type: web
-          property: url
+        value: https://adhithan-dev-portfolio.onrender.com
 
-  # Frontend Service
-  - type: web
-    name: adhithan-portfolio-frontend
-    env: node
-    buildCommand: chmod +x build-for-render.sh && ./build-for-render.sh
-    startCommand: npx serve -s dist
-    envVars:
-      - key: VITE_API_URL
-        fromService:
-          name: adhithan-portfolio-api
-          type: web
-          property: url
+  # Frontend is now combined with the backend service

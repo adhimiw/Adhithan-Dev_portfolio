@@ -193,10 +193,31 @@ app.use('/api/visitors', (req, _, next) => {
 app.use('/api/notifications', notificationRouter);
 app.use('/api/devices', deviceRouter);
 
-// Basic route for testing
-app.get('/', (_, res) => {
-  res.send('Portfolio API is running...');
-});
+// Serve static files from the dist directory if it exists
+const distPath = join(dirname(__dirname), 'dist');
+console.log('Checking for frontend build at:', distPath);
+
+import fs from 'fs';
+if (fs.existsSync(distPath)) {
+  console.log('Frontend build found, serving static files from:', distPath);
+  app.use(express.static(distPath));
+
+  // For any routes that don't match an API route or static file, serve the index.html
+  app.get('*', (req, res) => {
+    // Skip for API routes
+    if (req.path.startsWith('/api/')) {
+      return res.status(404).json({ error: 'API endpoint not found' });
+    }
+
+    res.sendFile(join(distPath, 'index.html'));
+  });
+} else {
+  console.log('No frontend build found at:', distPath);
+  // Basic route for testing when no frontend build exists
+  app.get('/', (_, res) => {
+    res.send('Portfolio API is running... (No frontend build found)');
+  });
+}
 
 
 
