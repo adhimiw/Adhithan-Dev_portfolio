@@ -5,7 +5,8 @@ import { defineConfig } from "vite";
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  root: '.', // Specify the root directory where index.html is located
+  root: process.cwd(), // Use current working directory as root
+  publicDir: 'public',
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -28,6 +29,10 @@ export default defineConfig({
       noEmit: true,
       skipLibCheck: true,
     },
-    outDir: 'dist'
+    outDir: 'dist',
+    emptyOutDir: true,
+    rollupOptions: {
+      input: path.resolve(process.cwd(), 'index.html'),
+    }
   }
 });
