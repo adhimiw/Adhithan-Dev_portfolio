@@ -18,11 +18,6 @@ npm install --legacy-peer-deps
 
 # Verify critical dependencies are installed
 echo "Verifying critical dependencies..."
-if [ ! -d "node_modules/lucide-react" ]; then
-  echo "lucide-react is NOT installed, installing explicitly..."
-  npm install --save lucide-react@0.503.0
-fi
-
 if [ ! -d "node_modules/class-variance-authority" ]; then
   echo "class-variance-authority is NOT installed, installing explicitly..."
   npm install --save class-variance-authority@0.7.1
