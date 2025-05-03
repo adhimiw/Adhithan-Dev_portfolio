@@ -1,9 +1,9 @@
 import { Link, useLocation, Outlet } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ThemeToggle from '../ui/ThemeToggle';
 import Footer from './Footer';
+import { MenuIcon, XIcon } from '../ui/icons';
 
 interface NavLinkProps {
   to: string;
@@ -124,7 +124,7 @@ const Layout = () => {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
           >
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            {isMenuOpen ? <XIcon size={24} /> : <MenuIcon size={24} />}
           </motion.button>
         </div>
 

@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
-import { LogOut, Menu, X, User, Settings, Home, Briefcase, Code, Phone, GraduationCap, BookOpen, BarChart, MessageSquare, Bot, Award } from 'lucide-react';
 import { isAuthenticated } from '../../services/authService';
 import { useAuth } from '../../contexts/AuthContext';
 import ThemeToggle from '../ui/ThemeToggle';
 import RealtimeNotification from '../ui/RealtimeNotification';
 import NotificationBell from './NotificationBell';
+import {
+  LogOutIcon, MenuIcon, XIcon, UserIcon, SettingsIcon, HomeIcon,
+  BriefcaseIcon, CodeIcon, PhoneIcon, GraduationCapIcon, BookOpenIcon,
+  BarChartIcon, MessageSquareIcon, BotIcon, AwardIcon
+} from '../ui/icons';
 
 const AdminLayout = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -62,91 +66,91 @@ const AdminLayout = () => {
                 to="/admin"
                 className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
-                <Home className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+                <HomeIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
                 Dashboard
               </Link>
               <Link
                 to="/admin/about"
                 className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
-                <User className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+                <UserIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
                 About
               </Link>
               <Link
                 to="/admin/education"
                 className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
-                <GraduationCap className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+                <GraduationCapIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
                 Education
               </Link>
               <Link
                 to="/admin/certificates"
                 className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
-                <Award className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+                <AwardIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
                 Certificates
               </Link>
               <Link
                 to="/admin/experience"
                 className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
-                <BookOpen className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+                <BookOpenIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
                 Experience
               </Link>
               <Link
                 to="/admin/projects"
                 className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
-                <Briefcase className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+                <BriefcaseIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
                 Projects
               </Link>
               <Link
                 to="/admin/skills"
                 className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
-                <Code className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+                <CodeIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
                 Skills
               </Link>
               <Link
                 to="/admin/contact"
                 className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
-                <Phone className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+                <PhoneIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
                 Contact
               </Link>
               <Link
                 to="/admin/messages"
                 className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
-                <MessageSquare className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+                <MessageSquareIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
                 Messages
               </Link>
               <Link
                 to="/admin/settings"
                 className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
-                <Settings className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+                <SettingsIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
                 Settings
               </Link>
               <Link
                 to="/admin/visitors"
                 className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
-                <BarChart className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+                <BarChartIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
                 Visitor Stats
               </Link>
               <Link
                 to="/admin/assistant"
                 className="group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
-                <Bot className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+                <BotIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
                 AI Assistant
               </Link>
               <button
                 onClick={handleLogout}
                 className="w-full group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               >
-                <LogOut className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+                <LogOutIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
                 Logout
               </button>
             </nav>
@@ -165,9 +169,9 @@ const AdminLayout = () => {
             className="text-gray-500 dark:text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
           >
             {isMobileMenuOpen ? (
-              <X className="h-6 w-6" />
+              <XIcon className="h-6 w-6" size={24} />
             ) : (
-              <Menu className="h-6 w-6" />
+              <MenuIcon className="h-6 w-6" size={24} />
             )}
           </button>
         </div>
@@ -182,7 +186,7 @@ const AdminLayout = () => {
               className="flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              <Home className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+              <HomeIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
               Dashboard
             </Link>
             <Link
@@ -190,7 +194,7 @@ const AdminLayout = () => {
               className="flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              <User className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+              <UserIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
               About
             </Link>
             <Link
@@ -198,7 +202,7 @@ const AdminLayout = () => {
               className="flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              <GraduationCap className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+              <GraduationCapIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
               Education
             </Link>
             <Link
@@ -206,7 +210,7 @@ const AdminLayout = () => {
               className="flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              <Award className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+              <AwardIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
               Certificates
             </Link>
             <Link
@@ -214,7 +218,7 @@ const AdminLayout = () => {
               className="flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              <BookOpen className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+              <BookOpenIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
               Experience
             </Link>
             <Link
@@ -222,7 +226,7 @@ const AdminLayout = () => {
               className="flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              <Briefcase className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+              <BriefcaseIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
               Projects
             </Link>
             <Link
@@ -230,7 +234,7 @@ const AdminLayout = () => {
               className="flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              <Code className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+              <CodeIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
               Skills
             </Link>
             <Link
@@ -238,7 +242,7 @@ const AdminLayout = () => {
               className="flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              <Phone className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+              <PhoneIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
               Contact
             </Link>
             <Link
@@ -246,7 +250,7 @@ const AdminLayout = () => {
               className="flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              <MessageSquare className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+              <MessageSquareIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
               Messages
             </Link>
             <Link
@@ -254,7 +258,7 @@ const AdminLayout = () => {
               className="flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              <Settings className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+              <SettingsIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
               Settings
             </Link>
             <Link
@@ -262,7 +266,7 @@ const AdminLayout = () => {
               className="flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              <BarChart className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+              <BarChartIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
               Visitor Stats
             </Link>
             <Link
@@ -270,7 +274,7 @@ const AdminLayout = () => {
               className="flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              <Bot className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+              <BotIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
               AI Assistant
             </Link>
             <button
@@ -280,7 +284,7 @@ const AdminLayout = () => {
               }}
               className="w-full flex items-center px-2 py-2 text-base font-medium rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
             >
-              <LogOut className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" />
+              <LogOutIcon className="mr-3 h-5 w-5 text-gray-400 dark:text-gray-400" size={20} />
               Logout
             </button>
           </nav>
