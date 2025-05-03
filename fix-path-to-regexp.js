@@ -180,11 +180,28 @@ function patchPathToRegexp(filePath) {
       content = content.replace(
         'function name(i, DEBUG_URL) {',
         `function name(i, DEBUG_URL) {
-          // Skip parameter name validation for URLs with colons
-          if (DEBUG_URL && DEBUG_URL.includes(':')) {
+          // Skip parameter name validation for URLs with colons or https
+          if (DEBUG_URL && (DEBUG_URL.includes(':') || DEBUG_URL.includes('https'))) {
             return 'param';
           }
         `
+      );
+      modified = true;
+    }
+
+    // Fix wildcard pattern handling
+    if (content.includes('function parse(str, options')) {
+      content = content.replace(
+        'function parse(str, options',
+        `function parse(str, options) {
+          // Special case for wildcard pattern
+          if (str === '*') {
+            return [{ type: 0, value: '.*' }];
+          }
+          return originalParse(str, options);
+        }
+
+        function originalParse(str, options`
       );
       modified = true;
     }

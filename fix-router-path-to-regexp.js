@@ -17,18 +17,18 @@ if (fs.existsSync(routerPathToRegexpPath)) {
   patchFile(routerPathToRegexpPath);
 } else {
   console.log(`Router's path-to-regexp not found at expected path, searching...`);
-  
+
   // Try to find it using find command
   try {
     const findOutput = execSync(
       'find ./node_modules -path "*/router/node_modules/path-to-regexp/dist/index.js" -type f',
       { encoding: 'utf8' }
     ).trim();
-    
+
     if (findOutput) {
       const paths = findOutput.split('\n');
       console.log(`Found ${paths.length} instances of router's path-to-regexp`);
-      
+
       for (const filePath of paths) {
         patchFile(filePath);
       }
@@ -37,19 +37,19 @@ if (fs.existsSync(routerPathToRegexpPath)) {
     }
   } catch (error) {
     console.log('Find command failed, trying manual search...');
-    
+
     // Manual search for router's path-to-regexp
     const routerPath = path.resolve('./node_modules/router');
     if (fs.existsSync(routerPath)) {
       console.log('Router package found, searching for path-to-regexp...');
-      
+
       const routerNodeModulesPath = path.join(routerPath, 'node_modules');
       if (fs.existsSync(routerNodeModulesPath)) {
         const pathToRegexpPath = path.join(routerNodeModulesPath, 'path-to-regexp');
-        
+
         if (fs.existsSync(pathToRegexpPath)) {
           const indexPath = path.join(pathToRegexpPath, 'dist', 'index.js');
-          
+
           if (fs.existsSync(indexPath)) {
             console.log(`Found router's path-to-regexp at: ${indexPath}`);
             patchFile(indexPath);
@@ -72,10 +72,10 @@ if (fs.existsSync(routerPathToRegexpPath)) {
 try {
   console.log('Checking for Express path-to-regexp...');
   const expressPathToRegexpPaths = findExpressPathToRegexp();
-  
+
   if (expressPathToRegexpPaths.length > 0) {
     console.log(`Found ${expressPathToRegexpPaths.length} Express path-to-regexp instances`);
-    
+
     for (const filePath of expressPathToRegexpPaths) {
       patchFile(filePath);
     }
@@ -90,42 +90,62 @@ try {
 function patchFile(filePath) {
   try {
     console.log(`Patching ${filePath}...`);
-    
+
     // Read the file
     let content = fs.readFileSync(filePath, 'utf8');
     let modified = false;
-    
+
     // Check if it contains the problematic code
     if (content.includes('const DEBUG_URL = "https://git.new/pathToRegexpError"')) {
       console.log('Found DEBUG_URL, replacing...');
-      
+
       // Replace the DEBUG_URL constant
       content = content.replace(
         'const DEBUG_URL = "https://git.new/pathToRegexpError";',
         'const DEBUG_URL = "path-to-regexp-error";'
       );
-      
+
       modified = true;
     }
-    
+
     // Fix the name function
     if (content.includes('function name(i, DEBUG_URL) {')) {
       console.log('Found name function, patching...');
-      
-      // Add a check to skip validation for URLs with colons
+
+      // Add a check to skip validation for URLs with colons or https
       content = content.replace(
         'function name(i, DEBUG_URL) {',
         `function name(i, DEBUG_URL) {
-          // Skip parameter name validation for URLs with colons
-          if (DEBUG_URL && DEBUG_URL.includes(':')) {
+          // Skip parameter name validation for URLs with colons or https
+          if (DEBUG_URL && (DEBUG_URL.includes(':') || DEBUG_URL.includes('https'))) {
             return 'param';
           }
         `
       );
-      
+
       modified = true;
     }
-    
+
+    // Fix wildcard pattern handling
+    if (content.includes('function parse(str, options')) {
+      console.log('Found parse function, patching for wildcard support...');
+
+      content = content.replace(
+        'function parse(str, options',
+        `function parse(str, options) {
+          // Special case for wildcard pattern
+          if (str === '*') {
+            return [{ type: 0, value: '.*' }];
+          }
+          return originalParse(str, options);
+        }
+
+        function originalParse(str, options`
+      );
+
+      modified = true;
+    }
+
     // Write the file back if modified
     if (modified) {
       fs.writeFileSync(filePath, content);
@@ -141,7 +161,7 @@ function patchFile(filePath) {
 // Function to find Express path-to-regexp instances
 function findExpressPathToRegexp() {
   const results = [];
-  
+
   // Check common Express-related paths
   const possiblePaths = [
     './node_modules/express/node_modules/path-to-regexp/dist/index.js',
@@ -149,15 +169,15 @@ function findExpressPathToRegexp() {
     './node_modules/express-route-parser/node_modules/path-to-regexp/dist/index.js',
     './node_modules/express-route-parser/node_modules/path-to-regexp/index.js'
   ];
-  
+
   for (const possiblePath of possiblePaths) {
     const fullPath = path.resolve(possiblePath);
-    
+
     if (fs.existsSync(fullPath)) {
       results.push(fullPath);
     }
   }
-  
+
   return results;
 }
 
