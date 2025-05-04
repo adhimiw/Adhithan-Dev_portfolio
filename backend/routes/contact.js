@@ -149,21 +149,57 @@ router.post('/message', async (req, res) => {
     // Emit WebSocket event for real-time updates
     req.app.get('io').to('admin').emit('notification-created', notification);
 
-    // Send push notification to admin
+    // Send email notification to admin
     try {
       const adminEmail = process.env.ADMIN_EMAIL || 'adhithanraja6@gmail.com';
-      const notificationData = {
-        name,
-        email,
-        message,
-        category: 'contact',
-        priority: 'medium',
-      };
 
-      await sendContactPushNotification(notificationData, adminEmail);
-    } catch (pushError) {
-      console.error('Error sending push notification:', pushError);
-      // Continue even if push notification fails
+      // Send email notification
+      const emailResult = await sendEmail({
+        to: adminEmail,
+        subject: `New Contact Message from ${name}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 5px;">
+            <h2 style="color: #333;">New Contact Message</h2>
+            <p><strong>From:</strong> ${name} (${email})</p>
+            <p><strong>Role:</strong> ${role || 'Not specified'}</p>
+            <p><strong>Message:</strong></p>
+            <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 10px 0;">
+              ${message.replace(/\n/g, '<br>')}
+            </div>
+            <p style="margin-top: 20px;">
+              <a href="${process.env.FRONTEND_URL || 'http://localhost:5173'}/admin/messages"
+                 style="background-color: #4CAF50; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; display: inline-block;">
+                View in Admin Panel
+              </a>
+            </p>
+          </div>
+        `
+      });
+
+      if (emailResult.error) {
+        console.warn('Email notification failed but will continue:', emailResult.message);
+      } else {
+        console.log('Email notification sent successfully');
+      }
+
+      // Also try to send push notification
+      try {
+        const notificationData = {
+          name,
+          email,
+          message,
+          category: 'contact',
+          priority: 'medium',
+        };
+
+        await sendContactPushNotification(notificationData, adminEmail);
+      } catch (pushError) {
+        console.error('Error sending push notification:', pushError);
+        // Continue even if push notification fails
+      }
+    } catch (notificationError) {
+      console.error('Error sending notifications:', notificationError);
+      // Continue even if notifications fail
     }
 
     // Even if there were errors with AI analysis or email sending,

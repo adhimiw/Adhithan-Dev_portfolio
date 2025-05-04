@@ -44,10 +44,10 @@ router.post('/', authenticateToken, async (req, res) => {
     });
 
     const savedNotification = await notification.save();
-    
+
     // Emit WebSocket event for real-time updates
     req.app.get('io').to('admin').emit('notification-created', savedNotification);
-    
+
     res.status(201).json(savedNotification);
   } catch (error) {
     console.error('Error creating notification:', error);
@@ -72,10 +72,10 @@ router.put('/:id', authenticateToken, async (req, res) => {
     if (req.body.metadata) notification.metadata = { ...notification.metadata, ...req.body.metadata };
 
     const updatedNotification = await notification.save();
-    
+
     // Emit WebSocket event for real-time updates
     req.app.get('io').to('admin').emit('notification-updated', updatedNotification);
-    
+
     res.json(updatedNotification);
   } catch (error) {
     console.error('Error updating notification:', error);
@@ -92,10 +92,10 @@ router.delete('/:id', authenticateToken, async (req, res) => {
     }
 
     await notification.deleteOne();
-    
+
     // Emit WebSocket event for real-time updates
     req.app.get('io').to('admin').emit('notification-deleted', { _id: req.params.id });
-    
+
     res.json({ message: 'Notification deleted' });
   } catch (error) {
     console.error('Error deleting notification:', error);
@@ -123,31 +123,44 @@ router.post('/:id/respond', authenticateToken, async (req, res) => {
     }
 
     // Send email response
-    await sendEmail({
+    const emailResult = await sendEmail({
       to: contact.email,
       subject: `Re: Your message to Adhithan Raja`,
       text: req.body.message,
-      html: `<div style="font-family: Arial, sans-serif; line-height: 1.6;">
+      html: `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 5px;">
+        <h2 style="color: #333;">Response to Your Message</h2>
         <p>Hello ${contact.name},</p>
-        <div>${req.body.message.replace(/\n/g, '<br>')}</div>
+        <p>Thank you for reaching out. Here is my response to your message:</p>
+        <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 10px 0;">
+          ${req.body.message.replace(/\n/g, '<br>')}
+        </div>
+        <p style="margin-top: 20px;">If you have any further questions, feel free to reply to this email or contact me through my portfolio website.</p>
         <p>Best regards,<br>Adhithan Raja</p>
       </div>`,
     });
+
+    // Log email sending result
+    if (emailResult.error) {
+      console.warn(`Email response to ${contact.email} failed:`, emailResult.message);
+      // Continue with the process even if email fails
+    } else {
+      console.log(`Email response to ${contact.email} sent successfully`);
+    }
 
     // Update notification status and add response message
     notification.status = 'responded';
     notification.metadata.responseMessage = req.body.message;
     const updatedNotification = await notification.save();
-    
+
     // Update contact status
     contact.status = 'responded';
     contact.responseMessage = req.body.message;
     contact.respondedAt = new Date();
     await contact.save();
-    
+
     // Emit WebSocket event for real-time updates
     req.app.get('io').to('admin').emit('notification-updated', updatedNotification);
-    
+
     res.json(updatedNotification);
   } catch (error) {
     console.error('Error sending response:', error);
