@@ -2,7 +2,15 @@ import express from 'express';
 import { authenticateToken } from '../middleware/authMiddleware.js';
 import Notification from '../models/Notification.js';
 import Contact from '../models/Contact.js';
-import { sendEmail } from '../utils/emailService.js';
+import { sendEmail as defaultSendEmail } from '../utils/emailService.js';
+
+// Use the global email service if available (for production), otherwise use the default
+const sendEmail = (options) => {
+  if (global.emailService && global.emailService.sendEmail) {
+    return global.emailService.sendEmail(options);
+  }
+  return defaultSendEmail(options);
+};
 
 const router = express.Router();
 

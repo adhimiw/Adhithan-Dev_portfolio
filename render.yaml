@@ -3,9 +3,9 @@ services:
   - type: web
     name: adhithan-portfolio-api
     env: node
-    nodeVersion: "20" # Explicitly set Node.js version to LTS
+    nodeVersion: "18" # Use Node.js 18 for better compatibility
     buildCommand: chmod +x build-for-render.sh && ./build-for-render.sh && chmod +x render-backend-build.sh && ./render-backend-build.sh
-    startCommand: node backend/server.js
+    startCommand: node render-start.js
     envVars:
       - key: NODE_ENV
         value: production
@@ -25,7 +25,15 @@ services:
         sync: false
       - key: ADMIN_EMAIL
         sync: false
+      - key: EMAIL_USER
+        value: adhithanraja6@gmail.com
+      - key: EMAIL_APP_PASSWORD
+        sync: false
+      - key: EMAIL_FROM
+        value: "Adhithan Raja <adhithanraja6@gmail.com>"
       - key: FRONTEND_URL
+        value: https://adhithan-dev-portfolio.onrender.com
+      - key: PRODUCTION_URL
         value: https://adhithan-dev-portfolio.onrender.com
 
   # Frontend is now combined with the backend service

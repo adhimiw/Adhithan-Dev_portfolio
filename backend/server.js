@@ -19,6 +19,16 @@ import visitorsRouter from './routes/visitors.js';
 import notificationRouter from './routes/notificationRoutes.js';
 import deviceRouter from './routes/deviceRoutes.js';
 import { initSocketIO } from './services/socketService.js';
+
+// Use alternative email service in production for better compatibility with Render
+if (process.env.NODE_ENV === 'production') {
+  console.log('Using alternative email service for production environment');
+  import('./utils/emailServiceAlt.js').then(module => {
+    global.emailService = module.default;
+  }).catch(error => {
+    console.error('Failed to load alternative email service:', error);
+  });
+}
 import { wildcardMiddleware } from './middleware/routeHandler.js';
 import fs from 'fs'; // Ensure fs is imported
 
