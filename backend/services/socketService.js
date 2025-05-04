@@ -44,9 +44,9 @@ export const initSocketIO = (server) => {
           'http://192.168.68.131:3000',
           'http://192.168.68.131:5173',
           'http://192.168.68.131:5174',
-          'http://192.168.68.131:5175'
-          // Add your production domain when ready
-          // 'https://yourdomain.com'
+          'http://192.168.68.131:5175',
+          // Add your production domain
+          'https://adhithan-dev-portfolio.onrender.com'
         ];
 
         // Allow requests with no origin (like mobile apps, curl, postman)
@@ -68,7 +68,9 @@ export const initSocketIO = (server) => {
           /^http:\/\/192\.168\.68\.\d+:3000$/,
           /^http:\/\/192\.168\.68\.\d+:5173$/,
           /^http:\/\/192\.168\.68\.\d+:5174$/,
-          /^http:\/\/192\.168\.68\.\d+:5175$/
+          /^http:\/\/192\.168\.68\.\d+:5175$/,
+          // Render domain
+          /^https:\/\/adhithan-dev-portfolio\.onrender\.com$/
         ];
 
         const isAllowed = allowedSubnets.some(regex => regex.test(origin));
