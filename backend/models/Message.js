@@ -18,7 +18,7 @@ const MessageSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['HR', 'Student', 'Teacher', 'Other']
+    enum: ['HR', 'Student', 'IT Employee', 'Teacher', 'Other']
   },
   date: {
     type: Date,
