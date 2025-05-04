@@ -138,9 +138,32 @@ const AboutPage = () => {
         <h2 className="text-2xl font-bold tracking-tight">Education</h2>
         <div className="space-y-8">
           {about.education && about.education.length > 0 ? (
-            about.education.map((edu, index) => (
-              <EducationItem key={edu._id || index} education={edu} />
-            ))
+            // Sort education in reverse chronological order (newest first)
+            // and prioritize higher education levels
+            [...about.education]
+              .sort((a, b) => {
+                // Define education level priority (higher number = higher priority)
+                const levelPriority: Record<string, number> = {
+                  'Doctorate': 5,
+                  'Postgraduate': 4,
+                  'Undergraduate': 3,
+                  'Diploma': 2,
+                  'HSC': 1,
+                  'HSSC': 1,
+                  'SSLC': 0,
+                  'Other': 0
+                };
+
+                // First sort by education level priority (highest first)
+                const levelDiff = (levelPriority[b.level] || 0) - (levelPriority[a.level] || 0);
+                if (levelDiff !== 0) return levelDiff;
+
+                // If same level, sort by date (newest first)
+                return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
+              })
+              .map((edu, index) => (
+                <EducationItem key={edu._id || index} education={edu} />
+              ))
           ) : (
             <p className="text-muted-foreground">No education information available.</p>
           )}
